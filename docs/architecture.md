@@ -45,20 +45,17 @@ Customers pay the merchant through the payment provider (or via COD). Vendra sto
 ```
 vendra/
 ├── apps/
-│   ├── storefront/       # Public customer-facing store (Next.js, port 3000)
-│   ├── backoffice/       # Merchant dashboard + platform admin (Next.js, port 3001)
-│   └── api/              # NestJS backend (port 4000)
+│ ├── storefront/ # Public customer-facing store (Next.js, port 3000)
+│ ├── backoffice/ # Merchant dashboard + platform admin (Next.js, port 3001)
+│ └── api/ # NestJS backend (port 4000)
+│ └── prisma/ # Prisma schema and migrations (lives inside the API app)
 ├── packages/
-│   ├── ui/                # Shared shadcn-based components
-│   ├── types/              # Shared TypeScript types/enums
-│   ├── validation/          # Shared Zod schemas
-│   └── config/              # Shared ESLint/TypeScript/Tailwind config
-├── prisma/
-│   ├── schema/
-│   └── migrations/
-├── docker/                 # Local PostgreSQL setup
+│ ├── ui/ # Shared shadcn-based components
+│ ├── types/ # Shared TypeScript types/enums
+│ ├── validation/ # Shared Zod schemas
+│ └── config/ # Shared ESLint/TypeScript/Tailwind config
 └── docs/
-    └── architecture/        # This folder
+└── architecture/ # Product/architecture planning docs
 ```
 
 ## Auth architecture
@@ -66,15 +63,15 @@ vendra/
 - **Supabase Auth** handles identity for merchants and platform admins: email/password, Google OAuth, Facebook OAuth.
 - **Customers never authenticate.** Storefront checkout is guest-only — no Supabase Auth account is created for customers.
 - **NestJS validates JWTs** issued by Supabase Auth on every protected request, using the `service_role` key (backend only, never exposed to the frontend).
-- **Authorization (roles, organization membership)** lives in Vendra's own `memberships` table, not in Supabase — Supabase only proves *who* the user is, not *what* they're allowed to do.
+- **Authorization (roles, organization membership)** lives in Vendra's own `memberships` table, not in Supabase — Supabase only proves _who_ the user is, not _what_ they're allowed to do.
 - The `/admin` platform-admin routes live inside the `backoffice` app, gated by a `platform_admin` role rather than an `organization_id`.
 
 ## Database split: local vs. production
 
-| | Local development | Production |
-|---|---|---|
-| Business data (`public` schema) | Docker PostgreSQL | Supabase-hosted PostgreSQL |
-| Auth (`auth` schema) | Supabase cloud project (dev) | Supabase cloud project (prod) |
+|                                 | Local development            | Production                    |
+| ------------------------------- | ---------------------------- | ----------------------------- |
+| Business data (`public` schema) | Docker PostgreSQL            | Supabase-hosted PostgreSQL    |
+| Auth (`auth` schema)            | Supabase cloud project (dev) | Supabase cloud project (prod) |
 
 Docker Postgres is a disposable local stand-in for business data only. Auth always runs against a real Supabase project, even during local development. In production, business data moves into the same Supabase-hosted Postgres instance that already holds the `auth` schema — one database, two schemas.
 

@@ -11,25 +11,21 @@ A Tunisian SaaS platform for Instagram/Facebook social-commerce sellers. Merchan
 - **Monorepo:** Turborepo + pnpm workspaces
 
 ## Project Structure
-
+```
 vendra/
 ├── apps/
-│   ├── storefront/       # Public customer-facing store (Next.js, port 3000)
-│   ├── backoffice/       # Merchant dashboard + platform admin (Next.js, port 3001)
-│   └── api/              # NestJS backend (port 4000)
+│ ├── storefront/ # Public customer-facing store (Next.js, port 3000)
+│ ├── backoffice/ # Merchant dashboard + platform admin (Next.js, port 3001)
+│ └── api/ # NestJS backend (port 4000)
+│ └── prisma/ # Prisma schema and migrations (lives inside the API app)
 ├── packages/
-│   ├── ui/                # Shared shadcn-based components
-│   ├── types/              # Shared TypeScript types/enums
-│   ├── validation/          # Shared Zod schemas
-│   └── config/              # Shared ESLint/TypeScript/Tailwind config
-├── prisma/
-│   ├── schema/
-│   └── migrations/
-├── docker/                 # Local PostgreSQL setup
+│ ├── ui/ # Shared shadcn-based components
+│ ├── types/ # Shared TypeScript types/enums
+│ ├── validation/ # Shared Zod schemas
+│ └── config/ # Shared ESLint/TypeScript/Tailwind config
 └── docs/
-    └── architecture/        # This folder
-
-
+└── architecture/ # Product/architecture planning docs
+```
 ## Prerequisites
 
 - Node.js
@@ -39,11 +35,13 @@ vendra/
 ## Local Setup
 
 1. **Install dependencies** (run once, from repo root):
+
 ```bash
    pnpm install
 ```
 
 2. **Start local PostgreSQL** via Docker:
+
 ```bash
    docker run --name vendra-db \
      -e POSTGRES_USER=vendrauser \
@@ -52,7 +50,8 @@ vendra/
      -p 5433:5432 \
      -d postgres:16
 ```
-   (Skip this if the container already exists — just `docker start vendra-db`.)
+
+(Skip this if the container already exists — just `docker start vendra-db`.)
 
 3. **Set up environment variables.** Each app needs its own `.env` / `.env.local` (not committed — see `.gitignore`):
 
@@ -61,26 +60,26 @@ vendra/
 NEXT_PUBLIC_SUPABASE_URL=<Supabase project URL>
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable/anon key>
 
-
-   **`apps/api/.env`**:
+**`apps/api/.env`**:
 
 DATABASE_URL="postgresql://vendrauser:vendrapass@localhost:5433/vendradb"
 SUPABASE_URL=<Supabase project URL>
 SUPABASE_SERVICE_ROLE_KEY=<Supabase service role key — backend only, never expose>
 
-
 4. **Run Prisma migrations:**
+
 ```bash
    cd apps/api
    pnpm prisma migrate dev
 ```
 
 5. **Start all apps** (from repo root):
+
 ```bash
    pnpm dev
 ```
 
-   This runs `storefront` (localhost:3000), `backoffice` (localhost:3001), and `api` (localhost:4000) together via Turborepo.
+This runs `storefront` (localhost:3000), `backoffice` (localhost:3001), and `api` (localhost:4000) together via Turborepo.
 
 ## Auth Notes
 
