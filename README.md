@@ -1,159 +1,90 @@
-# Turborepo starter
+# Vendra
 
-This Turborepo starter is maintained by the Turborepo core team.
+A Tunisian SaaS platform for Instagram/Facebook social-commerce sellers. Merchants get a storefront, product/inventory management, COD and online-payment checkout, and order fulfillment — all from one dashboard.
 
-## Using this example
+## Tech Stack
 
-Run the following command:
+- **Frontend:** Next.js (TypeScript, Tailwind) — `storefront` (public) and `backoffice` (merchant dashboard + admin)
+- **Backend:** NestJS (TypeScript)
+- **Database:** PostgreSQL via Prisma 7
+- **Auth:** Supabase Auth (email/password, Google, Facebook)
+- **Monorepo:** Turborepo + pnpm workspaces
 
-```sh
-npx create-turbo@latest
+## Project Structure
+
+vendra/
+├── apps/
+│ ├── storefront/ # Public customer-facing store (port 3000)
+│ ├── backoffice/ # Merchant dashboard + platform admin (port 3001)
+│ └── api/ # NestJS backend (port 4000)
+├── packages/ # Shared UI, types, validation, config (WIP)
+├── prisma/ # Database schema and migrations
+├── docker/ # Local PostgreSQL setup
+└── docs/ # Architecture and planning notes
+
+
+## Prerequisites
+
+- Node.js
+- pnpm
+- Docker
+
+## Local Setup
+
+1. **Install dependencies** (run once, from repo root):
+```bash
+   pnpm install
 ```
 
-## What's inside?
+2. **Start local PostgreSQL** via Docker:
+```bash
+   docker run --name vendra-db \
+     -e POSTGRES_USER=vendrauser \
+     -e POSTGRES_PASSWORD=vendrapass \
+     -e POSTGRES_DB=vendradb \
+     -p 5433:5432 \
+     -d postgres:16
+```
+   (Skip this if the container already exists — just `docker start vendra-db`.)
 
-This Turborepo includes the following packages/apps:
+3. **Set up environment variables.** Each app needs its own `.env` / `.env.local` (not committed — see `.gitignore`):
 
-### Apps and Packages
+   **`apps/storefront/.env.local`** and **`apps/backoffice/.env.local`**:
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+NEXT_PUBLIC_SUPABASE_URL=<Supabase project URL>
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable/anon key>
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-### Utilities
+   **`apps/api/.env`**:
 
-This Turborepo has some additional tools already setup for you:
+DATABASE_URL="postgresql://vendrauser:vendrapass@localhost:5433/vendradb"
+SUPABASE_URL=<Supabase project URL>
+SUPABASE_SERVICE_ROLE_KEY=<Supabase service role key — backend only, never expose>
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
 
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+4. **Run Prisma migrations:**
+```bash
+   cd apps/api
+   pnpm prisma migrate dev
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-pnpm exec turbo build
-pnpm exec turbo build
+5. **Start all apps** (from repo root):
+```bash
+   pnpm dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+   This runs `storefront` (localhost:3000), `backoffice` (localhost:3001), and `api` (localhost:4000) together via Turborepo.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Auth Notes
 
-```sh
-turbo build --filter=docs
-```
+- Customers checking out on `storefront` are **guest checkout only** — no login required.
+- Merchants and platform admins log into `backoffice` via Supabase Auth (email/password, Google, or Facebook).
+- Google and Facebook OAuth apps are configured in their respective developer consoles, with redirect URIs pointing to the Supabase project's callback URL.
 
-Without global `turbo`:
+## Billing Note
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+Vendra does not use automated subscription billing. Merchants select a plan and are contacted manually; plan activation/status is managed by the platform admin in the `backoffice` admin panel.
 
-### Develop
+## Status
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Early development — foundational setup (monorepo, database, auth wiring) complete. Core business logic (organizations, catalog, orders, payments) not yet implemented.
