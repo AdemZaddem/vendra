@@ -14,13 +14,20 @@ A Tunisian SaaS platform for Instagram/Facebook social-commerce sellers. Merchan
 
 vendra/
 ├── apps/
-│ ├── storefront/ # Public customer-facing store (port 3000)
-│ ├── backoffice/ # Merchant dashboard + platform admin (port 3001)
-│ └── api/ # NestJS backend (port 4000)
-├── packages/ # Shared UI, types, validation, config (WIP)
-├── prisma/ # Database schema and migrations
-├── docker/ # Local PostgreSQL setup
-└── docs/ # Architecture and planning notes
+│   ├── storefront/       # Public customer-facing store (Next.js, port 3000)
+│   ├── backoffice/       # Merchant dashboard + platform admin (Next.js, port 3001)
+│   └── api/              # NestJS backend (port 4000)
+├── packages/
+│   ├── ui/                # Shared shadcn-based components
+│   ├── types/              # Shared TypeScript types/enums
+│   ├── validation/          # Shared Zod schemas
+│   └── config/              # Shared ESLint/TypeScript/Tailwind config
+├── prisma/
+│   ├── schema/
+│   └── migrations/
+├── docker/                 # Local PostgreSQL setup
+└── docs/
+    └── architecture/        # This folder
 
 
 ## Prerequisites
