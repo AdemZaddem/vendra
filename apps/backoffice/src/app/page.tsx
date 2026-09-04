@@ -1,11 +1,15 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
+import { createClient as serverClient } from "@/utils/supabase/server";
 
 const Page = () => {
   const handleGoogleLogin = async () => {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
 
     if (error) {
@@ -41,6 +45,7 @@ const Page = () => {
       console.log("Logout successful");
     }
   };
+  
   return (
     <div>
       <p>This Back Office page</p>

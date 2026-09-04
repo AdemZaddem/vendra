@@ -10,8 +10,12 @@ export const GET = async (request: NextRequest) => {
   }
 
   const supabase = await createClient();
-  const { data:{user}, error } = await supabase.auth.exchangeCodeForSession(code);
-  if(error || !user) {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error || !user) {
     console.error("Error exchanging code for session:", error?.message);
     return NextResponse.redirect(`${origin}/login`);
   }
