@@ -1,12 +1,24 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { SupabaseAuthGuard } from './guards/supabase-auth/supabase-auth.guard';
-
+import { AuthService } from './auth.service';
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: string;
+    email: string;
+    role: string;
+  };
+}
 @Controller('auth')
 export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  
   @Get('me')
   @UseGuards(SupabaseAuthGuard)
-  getProfile(@Req() req) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-    return req.user;
+  async getMe(@Req() req: AuthenticatedRequest) {
+    if (!req.user || !req.user.userId) {
+      throw new Error('User is not authenticated');
+    }
+    return this.authService.getMembershipStatus(req.user.userId);
   }
 }

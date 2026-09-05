@@ -26,13 +26,44 @@ enum MembershipRole {
   fulfillment_staff
 }
 
+enum Governorate {
+  tunis
+  ariana
+  ben_arous
+  manouba
+  nabeul
+  zaghouan
+  bizerte
+  beja
+  jendouba
+  kef
+  siliana
+  kairouan
+  kasserine
+  sidi_bouzid
+  sousse
+  monastir
+  mahdia
+  sfax
+  gafsa
+  tozeur
+  kebili
+  gabes
+  medenine
+  tataouine
+}
+
 model Organization {
   id            String     @id @default(uuid())
   name          String
   slug          String     @unique
   logoUrl       String?
+  tagline       String?
+  brandColor    String?
+  themeId       String?
   contactPhone  String?
   contactEmail  String?
+  category      String?
   plan          Plan       @default(starter)
   planStatus    PlanStatus @default(pending_payment)
   planExpiresAt DateTime?
@@ -40,6 +71,7 @@ model Organization {
   updatedAt     DateTime   @updatedAt
 
   memberships   Membership[]
+  deliveryZones DeliveryZone[]
 
   @@map("organizations")
 }
@@ -71,3 +103,19 @@ model Membership {
   @@unique([organizationId, profileId])
   @@map("memberships")
 }
+
+model DeliveryZone {
+  id             String       @id @default(uuid())
+  organizationId String
+  governorate    Governorate
+  price          Decimal      @default(0) @db.Decimal(10, 2)
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, governorate])
+  @@map("delivery_zones")
+}
+

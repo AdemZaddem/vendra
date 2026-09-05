@@ -1,6 +1,5 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
-import { createClient as serverClient } from "@/utils/supabase/server";
 
 const Page = () => {
   const handleGoogleLogin = async () => {
