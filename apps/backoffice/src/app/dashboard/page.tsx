@@ -1,3 +1,4 @@
+import LogoutButton from "@/components/LogoutButton";
 import { createClient } from "@/utils/supabase/server"
 
 const Page = async() => {
@@ -8,6 +9,8 @@ const Page = async() => {
   return (
     <div>
       <p>Check Console</p>
+      <p>Dashboard (placeholder)</p>
+      <LogoutButton/>
     </div>
   )
 }
