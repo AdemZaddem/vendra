@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth/supabase-auth.guard';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
@@ -23,5 +23,11 @@ export class OrganizationsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.organizationsService.create(dto, req.user.userId);
+  }
+
+  @Get('check-slug')
+  async checkSlug(@Query('slug') slug:string){
+    const existing = await this.organizationsService.findBySlug(slug)
+    return {available:!existing}
   }
 }

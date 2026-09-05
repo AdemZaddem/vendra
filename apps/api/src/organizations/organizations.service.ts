@@ -43,7 +43,11 @@ export class OrganizationsService {
         },
       });
 
-      return organization
+      return organization;
     });
+  }
+
+  async findBySlug(slug: string) {
+    return this.prisma.organization.findUnique({ where: { slug } });
   }
 }
